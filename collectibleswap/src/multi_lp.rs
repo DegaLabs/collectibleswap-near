@@ -62,13 +62,13 @@ impl Contract {
     }
 
     /// Returns the balance of the given account. If the account doesn't exist will return `"0"`.
-    pub fn lp_balance_of(&self, pool_id: u64, account_id: AccountId) -> U128 {
-        self.internal_lp_balance(pool_id, &account_id).into()
+    pub fn lp_balance_of(&self, pool_id: u32, account_id: AccountId) -> U128 {
+        self.internal_lp_balance(pool_id as u64, &account_id).into()
     }
 
     /// Returns the total supply of the given token, if the token is one of the pools.
     /// If token references external token - fails with unimplemented.
-    pub fn lp_total_supply(&self, pool_id: u64) -> U128 {
+    pub fn lp_total_supply(&self, pool_id: u32) -> U128 {
         let pool = self.pools.get(pool_id as usize).expect("invalid pool_id");
         pool.lp_supply.into()
     }
@@ -76,7 +76,7 @@ impl Contract {
     /// Register LP token of given pool for given account.
     /// Fails if token_id is not a pool.
     #[payable]
-    pub fn lp_register(&mut self, pool_id: u64, account_id: AccountId) {
+    pub fn lp_register(&mut self, pool_id: u32, account_id: AccountId) {
         let prev_storage = env::storage_usage();
         let pool = &mut self.pools[pool_id as usize];
         pool.internal_register_account_lp(&account_id);
@@ -94,14 +94,14 @@ impl Contract {
     #[payable]
     pub fn lp_transfer(
         &mut self,
-        pool_id: u64,
+        pool_id: u32,
         receiver_id: AccountId,
         amount: U128,
         memo: Option<String>,
     ) {
         assert_one_yocto();
         self.internal_lp_transfer(
-            pool_id,
+            pool_id as u64,
             &env::predecessor_account_id(),
             &receiver_id,
             amount.0,
@@ -112,7 +112,7 @@ impl Contract {
     #[payable]
     pub fn lp_transfer_call(
         &mut self,
-        pool_id: u64,
+        pool_id: u32,
         receiver_id: AccountId,
         amount: U128,
         memo: Option<String>,
@@ -120,14 +120,14 @@ impl Contract {
     ) -> PromiseOrValue<U128> {
         assert_one_yocto();
         let sender_id = env::predecessor_account_id();
-        self.internal_lp_transfer(pool_id, &sender_id, &receiver_id, amount.0, memo);
+        self.internal_lp_transfer(pool_id as u64, &sender_id, &receiver_id, amount.0, memo);
         ext_lp_token_receiver::ext(receiver_id.clone())
             .with_static_gas(GAS_FOR_NFT_TRANSFER_CALL)
-            .lp_on_transfer(pool_id, sender_id.clone(), amount, msg)
+            .lp_on_transfer(pool_id as u64, sender_id.clone(), amount, msg)
             .then(
                 ext_self::ext(env::current_account_id())
                     .with_static_gas(GAS_FOR_RESOLVE_TRANSFER)
-                    .lp_resolve_transfer(pool_id, sender_id, receiver_id, amount),
+                    .lp_resolve_transfer(pool_id as u64, sender_id, receiver_id, amount),
             )
             .into()
     }
@@ -138,7 +138,7 @@ impl Contract {
     #[private]
     pub fn lp_resolve_transfer(
         &mut self,
-        pool_id: u64,
+        pool_id: u32,
         sender_id: AccountId,
         receiver_id: &AccountId,
         amount: U128,
@@ -155,22 +155,22 @@ impl Contract {
             PromiseResult::Failed => amount.0,
         };
         if unused_amount > 0 {
-            let receiver_balance = self.internal_lp_balance(pool_id, &receiver_id);
+            let receiver_balance = self.internal_lp_balance(pool_id as u64, &receiver_id);
             if receiver_balance > 0 {
                 let refund_amount = std::cmp::min(receiver_balance, unused_amount);
-                self.internal_lp_transfer(pool_id, &receiver_id, &sender_id, refund_amount, None);
+                self.internal_lp_transfer(pool_id as u64, &receiver_id, &sender_id, refund_amount, None);
             }
         }
         U128(unused_amount)
     }
 
-    pub fn lp_metadata(&self, pool_id: u64) -> FungibleTokenMetadata {
+    pub fn lp_metadata(&self, pool_id: u32) -> FungibleTokenMetadata {
         let decimals = 24u8;
         FungibleTokenMetadata {
             // [AUDIT_08]
             spec: "nearft-lp-1.0.0".to_string(),
-            name: format!("nearft-pool-{}", pool_id),
-            symbol: format!("NEARFT-POOL-{}", pool_id),
+            name: format!("nearft-pool-{}", pool_id as u64),
+            symbol: format!("NEARFT-POOL-{}", pool_id as u64),
             icon: None,
             reference: None,
             reference_hash: None,

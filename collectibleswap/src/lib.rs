@@ -166,7 +166,9 @@ impl Contract {
         self.pools = vec![];
     }
 
+    #[payable]
     pub fn set_protocol_fee_receiver(&mut self, account_id: AccountId) {
+        assert_one_yocto();
         require!(
             env::predecessor_account_id() == self.governance_id.clone(),
             "only governance"
@@ -278,6 +280,7 @@ impl Contract {
 
     #[payable]
     pub fn withdraw_near(&mut self, pool_id: u64, near_amount: U128) {
+        self.assert_atleast_one_yocto();
         let prev_storage = env::storage_usage();
         let account_id = env::predecessor_account_id();
         let pool = &mut self.pools[pool_id as usize];
@@ -289,6 +292,7 @@ impl Contract {
 
     #[payable]
     pub fn withdraw_nfts(&mut self, pool_id: u64, token_ids: Vec<TokenId>) {
+        self.assert_atleast_one_yocto();
         let prev_storage = env::storage_usage();
         let account_id = env::predecessor_account_id();
         let pool = &mut self.pools[pool_id as usize];
@@ -302,10 +306,7 @@ impl Contract {
     }
     #[payable]
     pub fn withdraw_nfts_from_deposit(&mut self, asset_id: AssetId, token_ids: Vec<TokenId>) {
-        require!(
-            env::attached_deposit() >= token_ids.len() as u128,
-            "require attachment"
-        );
+        self.assert_atleast_one_yocto();
         let account_id = env::predecessor_account_id();
         self.internal_withdraw_nft(&account_id, &asset_id, &token_ids);
 
@@ -314,6 +315,9 @@ impl Contract {
 }
 
 impl Contract {
+    fn assert_atleast_one_yocto(&self) {
+        require!(env::attached_deposit() > 0, "Requires attached deposit of at least 1 yoctoNEAR");
+    }
     fn internal_swap_near_for_nfts(
         &mut self,
         pool_id: u64,
