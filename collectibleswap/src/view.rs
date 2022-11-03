@@ -1,9 +1,13 @@
 use std::collections::HashMap;
 
 use near_contract_standards::non_fungible_token::TokenId;
-use near_sdk::{serde::{Serialize, Deserialize}};
+use near_sdk::serde::{Deserialize, Serialize};
 
-use crate::{*, pair::{PoolType}, curves::{errorcodes::CurveErrorCode, curve::BondingCurve}};
+use crate::{
+    curves::{curve::BondingCurve, errorcodes::CurveErrorCode},
+    pair::PoolType,
+    *,
+};
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, Clone, Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
@@ -20,7 +24,10 @@ pub struct PairInfo {
     pub asset_recipient: Option<AccountId>,
     pub near_balance: U128,
     pub pool_token_ids: Vec<TokenId>,
-    pub pool_id: u64
+    pub pool_id: u64,
+    pub accumulated_volume: U128,
+    pub accumulated_volume_times: U128,
+    pub accumulated_fees: U128,
 }
 
 #[near_bindgen]
@@ -65,7 +72,7 @@ pub struct SellInfoPublic {
 pub struct AccountInfo {
     pub deposits: HashMap<AssetId, Vec<TokenId>>,
     pub near_balance: U128,
-    pub storage_usage: StorageUsage
+    pub storage_usage: StorageUsage,
 }
 
 #[near_bindgen]
@@ -74,16 +81,48 @@ impl Contract {
         self.protocol_fee_multiplier
     }
 
-    pub fn get_buy_nft_quote(&self, pool_id: u64, num_nfts: u64) -> (CurveErrorCode, U128, U128, U128, U128) {
+    pub fn get_buy_nft_quote(
+        &self,
+        pool_id: u64,
+        num_nfts: u64,
+    ) -> (CurveErrorCode, U128, U128, U128, U128) {
         let pair = self.pools.get(pool_id as usize).unwrap();
-        let (buy_info, _) = pair.get_buy_info(pair.spot_price, pair.delta, num_nfts, pair.fee, self.get_protocol_fee_multiplier());
-        (buy_info.error_code, buy_info.new_spot_price.into(), buy_info.new_delta.into(), buy_info.input_value.as_u128().into(), buy_info.protocol_fee.as_u128().into())
+        let (buy_info, _) = pair.get_buy_info(
+            pair.spot_price,
+            pair.delta,
+            num_nfts,
+            pair.fee,
+            self.get_protocol_fee_multiplier(),
+        );
+        (
+            buy_info.error_code,
+            buy_info.new_spot_price.into(),
+            buy_info.new_delta.into(),
+            buy_info.input_value.as_u128().into(),
+            buy_info.protocol_fee.as_u128().into(),
+        )
     }
 
-    pub fn get_sell_nft_quote(&self, pool_id: u64, num_nfts: u64) -> (CurveErrorCode, U128, U128, U128, U128) {
+    pub fn get_sell_nft_quote(
+        &self,
+        pool_id: u64,
+        num_nfts: u64,
+    ) -> (CurveErrorCode, U128, U128, U128, U128) {
         let pair = self.pools.get(pool_id as usize).unwrap();
-        let (sell_info, _) = pair.get_sell_info(pair.spot_price, pair.delta, num_nfts, pair.fee, self.get_protocol_fee_multiplier());
-        (sell_info.error_code, sell_info.new_spot_price.into(), sell_info.new_delta.into(), sell_info.output_value.as_u128().into(), sell_info.protocol_fee.as_u128().into())
+        let (sell_info, _) = pair.get_sell_info(
+            pair.spot_price,
+            pair.delta,
+            num_nfts,
+            pair.fee,
+            self.get_protocol_fee_multiplier(),
+        );
+        (
+            sell_info.error_code,
+            sell_info.new_spot_price.into(),
+            sell_info.new_delta.into(),
+            sell_info.output_value.as_u128().into(),
+            sell_info.protocol_fee.as_u128().into(),
+        )
     }
 
     pub fn get_all_held_ids(&self, pool_id: u64) -> Vec<TokenId> {
@@ -92,7 +131,22 @@ impl Contract {
     }
 
     fn pool_to_pair_info(&self, pair: &Pair) -> PairInfo {
-        PairInfo { pool_id: pair.pool_id, curve_type: pair.curve.curve_type, pool_type: pair.pool_type, nft_token: pair.nft_token.clone(), spot_price: pair.spot_price.into(), delta: pair.delta.into(), fee: pair.fee.into(), owner: pair.owner.clone(), asset_recipient: pair.asset_recipient.clone(), near_balance: pair.near_balance.into(), pool_token_ids: self.get_all_held_ids(pair.pool_id) }
+        PairInfo {
+            pool_id: pair.pool_id,
+            curve_type: pair.curve.curve_type,
+            pool_type: pair.pool_type,
+            nft_token: pair.nft_token.clone(),
+            spot_price: pair.spot_price.into(),
+            delta: pair.delta.into(),
+            fee: pair.fee.into(),
+            owner: pair.owner.clone(),
+            asset_recipient: pair.asset_recipient.clone(),
+            near_balance: pair.near_balance.into(),
+            pool_token_ids: self.get_all_held_ids(pair.pool_id),
+            accumulated_fees: pair.accumulated_fees.into(),
+            accumulated_volume_times: pair.accumulated_volume_times.into(),
+            accumulated_volume: pair.accumulated_volume.into()
+        }
     }
 
     pub fn get_pool_info(&self, pool_id: u64) -> PairInfo {
@@ -116,7 +170,7 @@ impl Contract {
         let from = from_index.unwrap_or(0);
         if from >= self.pools.len() as u64 {
             return vec![];
-        } 
+        }
 
         let limit = limit.unwrap_or(u64::MAX);
         require!(limit != 0, "Cannot provide limit of 0.");
@@ -133,18 +187,23 @@ impl Contract {
         let mut hash_map = HashMap::<AssetId, Vec<TokenId>>::new();
         let account_deposit = self.internal_get_account_or_revert(&account_id);
         for asset_id in account_deposit.assets.keys_as_vector().iter() {
-            let held_ids = account_deposit.assets.get(&asset_id).unwrap().keys_as_vector().to_vec();
+            let held_ids = account_deposit
+                .assets
+                .get(&asset_id)
+                .unwrap()
+                .keys_as_vector()
+                .to_vec();
             hash_map.insert(asset_id, held_ids);
         }
 
-        AccountInfo { deposits: hash_map, near_balance: account_deposit.near_balance.into(), storage_usage: account_deposit.storage_usage }                                        
+        AccountInfo {
+            deposits: hash_map,
+            near_balance: account_deposit.near_balance.into(),
+            storage_usage: account_deposit.storage_usage,
+        }
     }
 
-    pub fn get_buy_info(
-        &self,
-        pool_id: u64,
-        num_items: u64,
-    ) -> BuyInfoPublic {
+    pub fn get_buy_info(&self, pool_id: u64, num_items: u64) -> BuyInfoPublic {
         let pool = &self.pools[pool_id as usize];
         let current_spot_price = pool.spot_price;
         let current_delta = pool.delta;
@@ -155,21 +214,44 @@ impl Contract {
             pool.fee,
             self.protocol_fee_multiplier,
         );
-        BuyInfoPublic { error_code: buy_info.error_code, new_spot_price: buy_info.new_spot_price.into(), new_delta: buy_info.new_delta.into(), input_value: buy_info.input_value.as_u128().into(), protocol_fee: buy_info.protocol_fee.as_u128().into() }
+        BuyInfoPublic {
+            error_code: buy_info.error_code,
+            new_spot_price: buy_info.new_spot_price.into(),
+            new_delta: buy_info.new_delta.into(),
+            input_value: buy_info.input_value.as_u128().into(),
+            protocol_fee: buy_info.protocol_fee.as_u128().into(),
+        }
     }
 
-    pub fn get_sell_info(
-        &self, 
-        pool_id: u64,
-        num_items: u64
-    ) -> SellInfoPublic {
+    pub fn get_sell_info(&self, pool_id: u64, num_items: u64) -> SellInfoPublic {
         let pool = &self.pools[pool_id as usize];
-        let (sell_info, _) = pool.get_sell_info(pool.spot_price, pool.delta, num_items, pool.fee, self.protocol_fee_multiplier);
-        SellInfoPublic { error_code: sell_info.error_code, new_spot_price: sell_info.new_spot_price.into(), new_delta: sell_info.new_delta.into(), output_value: sell_info.output_value.as_u128().into(), protocol_fee: sell_info.protocol_fee.as_u128().into() }
+        let (sell_info, _) = pool.get_sell_info(
+            pool.spot_price,
+            pool.delta,
+            num_items,
+            pool.fee,
+            self.protocol_fee_multiplier,
+        );
+        SellInfoPublic {
+            error_code: sell_info.error_code,
+            new_spot_price: sell_info.new_spot_price.into(),
+            new_delta: sell_info.new_delta.into(),
+            output_value: sell_info.output_value.as_u128().into(),
+            protocol_fee: sell_info.protocol_fee.as_u128().into(),
+        }
     }
 
     pub fn get_metadata(&self) -> MetaData {
-        MetaData { governance_id: self.governance_id.clone(), protocol_fee_receiver_id: self.protocol_fee_receiver_id.clone(), protocol_fee_credit: self.protocol_fee_credit.into(), pools_acount: self.pools.len() as u64, protocol_fee_multiplier: self.protocol_fee_multiplier.into(), storage_per_account_creation: self.storage_per_account_creation, storage_per_nft_deposit: self.storage_per_nft_deposit, storage_per_pair_creation: self.storage_per_pair_creation }
+        MetaData {
+            governance_id: self.governance_id.clone(),
+            protocol_fee_receiver_id: self.protocol_fee_receiver_id.clone(),
+            protocol_fee_credit: self.protocol_fee_credit.into(),
+            pools_acount: self.pools.len() as u64,
+            protocol_fee_multiplier: self.protocol_fee_multiplier.into(),
+            storage_per_account_creation: self.storage_per_account_creation,
+            storage_per_nft_deposit: self.storage_per_nft_deposit,
+            storage_per_pair_creation: self.storage_per_pair_creation,
+        }
     }
 
     pub fn get_nft_asset_id(&self, pool_id: u64) -> AssetId {
