@@ -1,0 +1,8 @@
+"name","struct","description","modifier","macro","visibility","status","type","high","medium","low","info"
+"fmt",,,,,"private","working","Function",,,,
+"internal_get_account_or_revert","Contract",,,,"internal","working","Function",,,,
+"internal_deposit_nft","Contract",,,,"internal","working","Function",,,,
+"internal_deposit_nft_with_storage_check","Contract",,,,"internal","working","Function",,,,
+"internal_withdraw_nft","Contract",,,,"internal","working","Function",,,,
+"assert_storage","Contract",,"require!(account_deposit.near_balance >= storage_cost, storage usage exceeds near balance); ",,"internal","working","Function",,,,
+"compute_storage_usage","Contract",,,,"internal","working","Function",,,,

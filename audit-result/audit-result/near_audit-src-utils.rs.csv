@@ -1,0 +1,3 @@
+"name","struct","description","modifier","macro","visibility","status","type","high","medium","low","info"
+"nft_transfer_resolve","Contract",,,"#[private]","internal(near_bindgen)","working","Function",,,,
+"transfer_nfts","Contract",,,,"internal","working","Function",,,,

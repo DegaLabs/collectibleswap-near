@@ -1,0 +1,7 @@
+"name","struct","description","modifier","macro","visibility","status","type","high","medium","low","info"
+"from",,,,,"private","working","Function",,,,
+"new","Curve",,,,"public","working","Function",,,,
+"validate_delta","Curve",,,,"internal","working","Function",,,,
+"validate_spot_price","Curve",,,,"internal","working","Function",,,,
+"get_buy_info","Curve",,,,"internal","working","Function",,,,
+"get_sell_info","Curve",,,,"internal","working","Function",,,,

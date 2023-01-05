@@ -1,0 +1,10 @@
+"name","struct","description","modifier","macro","visibility","status","type","high","medium","low","info"
+"internal_lp_transfer",,,"require!(sender_id != receiver_id, Cannot transfer to self); ",,"private(near_bindgen)","working","Function",,,,
+"internal_lp_balance",,,,,"private(near_bindgen)","working","Function",,,,
+"lp_balance_of","Contract",,,,"public(near_bindgen)","working","Function","u64 with too large integer type in public function args, use near_sdk::json_types instead;",,,
+"lp_total_supply","Contract",,,,"public(near_bindgen)","working","Function","u64 with too large integer type in public function args, use near_sdk::json_types instead;",,,
+"lp_register","Contract",,"require!( env::attached_deposit() >= used_near, used near exceed atttached deposit ); ","#[payable]","public(near_bindgen)","working","Function","u64 with too large integer type in public function args, use near_sdk::json_types instead;",,,
+"lp_transfer","Contract",,,"#[payable]","public(near_bindgen)","working","Function","u64 with too large integer type in public function args, use near_sdk::json_types instead;",,,
+"lp_transfer_call","Contract",,,"#[payable]","public(near_bindgen)","working","Function","u64 with too large integer type in public function args, use near_sdk::json_types instead;",,,
+"lp_resolve_transfer","Contract",,,"#[private]","internal(near_bindgen)","working","Function",,,,
+"lp_metadata","Contract",,,,"public(near_bindgen)","working","Function","u64 with too large integer type in public function args, use near_sdk::json_types instead;",,,

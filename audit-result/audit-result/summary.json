@@ -1,0 +1,170 @@
+[
+    {
+        "file": "src/multi_lp.rs",
+        "name": "lp_balance_of",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/multi_lp.rs",
+        "name": "lp_total_supply",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/multi_lp.rs",
+        "name": "lp_register",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/multi_lp.rs",
+        "name": "lp_transfer",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/multi_lp.rs",
+        "name": "lp_transfer_call",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/multi_lp.rs",
+        "name": "lp_metadata",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/lib.rs",
+        "name": "create_pair",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead; u64 with too large integer type in public function return value, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/lib.rs",
+        "name": "add_liquidity",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/lib.rs",
+        "name": "remove_liquidity",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/lib.rs",
+        "name": "withdraw_near",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/lib.rs",
+        "name": "withdraw_nfts",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_protocol_fee_multiplier",
+        "high": "u128 with too large integer type in public function return value, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_buy_nft_quote",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_sell_nft_quote",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_all_held_ids",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_pool_info",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead; PairInfo with too large integer type in public function return value, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_pool_count",
+        "high": "u64 with too large integer type in public function return value, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_buy_info",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_sell_info",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_metadata",
+        "high": "MetaData with too large integer type in public function return value, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    },
+    {
+        "file": "src/view.rs",
+        "name": "get_nft_asset_id",
+        "high": "u64 with too large integer type in public function args, use near_sdk::json_types instead;",
+        "medium": "",
+        "low": "",
+        "info": ""
+    }
+]

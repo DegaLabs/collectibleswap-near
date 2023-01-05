@@ -1,0 +1,4 @@
+"name","struct","description","modifier","macro","visibility","status","type","high","medium","low","info"
+"from",,,,,"private","working","Function",,,,
+"internal_swap_with_action",,,"require!( action.output_token_ids.len() == action.num_out_nfts.unwrap() as usize, invalid num out nfts ); ",,"private","working","Function",,,,
+"swap","Contract",,"require!(first_action.input_token_ids.len() > 0, inpput token ids invalid); ","#[payable]","public(near_bindgen)","working","Function",,,,

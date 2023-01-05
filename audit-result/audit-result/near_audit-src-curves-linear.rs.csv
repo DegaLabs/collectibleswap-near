@@ -1,0 +1,5 @@
+"name","struct","description","modifier","macro","visibility","status","type","high","medium","low","info"
+"validate_delta",,,,,"internal","working","Function",,,,
+"validate_spot_price",,,,,"internal","working","Function",,,,
+"get_buy_info",,,,,"internal","working","Function",,,,
+"get_sell_info",,,,,"internal","working","Function",,,,

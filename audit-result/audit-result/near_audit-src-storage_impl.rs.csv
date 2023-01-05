@@ -1,0 +1,11 @@
+"name","struct","description","modifier","macro","visibility","status","type","high","medium","low","info"
+"internal_storage_unregister","Contract",,,,"public","working","Function",,,,
+"internal_storage_balance_of",,,,,"private","working","Function",,,,
+"internal_register_account","Contract",,,,"public","working","Function",,,,
+"storage_deposit","Contract",,,"#[allow(unused_variables)]; #[payable]","private","working","Function",,,,
+"storage_withdraw",,,,,"private","working","Function",,,,
+"storage_unregister",,,,,"private","working","Function",,,,
+"storage_balance_bounds",,,,,"private","working","Function",,,,
+"storage_balance_of",,,,,"private","working","Function",,,,
+"storage_balance_bounds_for_account","Contract",,,,"public(near_bindgen)","working","Function",,,,
+"storage_available","Contract",,,,"public(near_bindgen)","working","Function",,,,
